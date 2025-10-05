@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/examples/">
+    <Project Path="examples/ConsoleApp/ConsoleApp.csproj" Id="c26fe90d-a5c8-4765-96e2-409391ec11e5" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Abstractions/FortyOne.OrchestratR.Abstractions.csproj" />
+    <Project Path="src/OrchestratR/FortyOne.OrchestratR.csproj" />
+  </Folder>
+</Solution>

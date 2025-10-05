@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<PackageId>FortyOne.OrchestratR.Abstractions</PackageId>
+		<AssemblyName>FortyOne.OrchestratR.Abstractions</AssemblyName>
+		<RootNamespace>FortyOne.OrchestratR</RootNamespace>
+		<Description>Core abstractions for the OrchestratR library, providing interfaces for CQRS and mediator pattern implementation. Contains request/response contracts, handler definitions, and pipeline interception abstractions.</Description>
+	</PropertyGroup>
+</Project>
