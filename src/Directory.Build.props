@@ -1,0 +1,39 @@
+<Project>
+	<PropertyGroup>
+		<TargetFrameworks>net9.0;net8.0</TargetFrameworks>
+		<ExtendedTargetFrameworks>net9.0;net8.0</ExtendedTargetFrameworks>
+	</PropertyGroup>
+	
+    <PropertyGroup>
+		<Version Condition="$(Version) == ''">0.0.0</Version>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<DebugType>portable</DebugType>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+	<PropertyGroup>
+		<Product>OrchestratR</Product>
+		<Authors>FortyOneForce</Authors>
+		<Description>An orchestration library for .NET applications implementing CQRS and mediator patterns</Description>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/FortyOneForce/orchestrator</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/FortyOneForce/orchestrator</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>orchestration;mediator;cqrs;dotnet</PackageTags>
+		<PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+		<RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="$(MSBuildThisFileDirectory)..\assets\icon.png" Pack="true" PackagePath="\" Visible="false" />
+		<None Include="$(MSBuildThisFileDirectory)..\README.md" Pack="true" PackagePath="\" Visible="false" />
+	</ItemGroup>
+</Project>
