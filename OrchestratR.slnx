@@ -1,12 +1,14 @@
 <Solution>
-  <Folder Name="/examples/">
-    <Project Path="examples/ConsoleApp/ConsoleApp.csproj" Id="c26fe90d-a5c8-4765-96e2-409391ec11e5" />
+  <Folder Name="/doc/" />
+  <Folder Name="/doc/assets/">
+    <File Path="doc/assets/icon.png" />
   </Folder>
-  <Folder Name="/Solution Items/">
-    <File Path="README.md" />
+  <Folder Name="/samples/">
+    <Project Path="samples/Samples.WebApp/Samples.WebApp.csproj" Id="28052438-087c-4206-a889-e1f0c8bcffd1" />
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Abstractions/FortyOne.OrchestratR.Abstractions.csproj" />
     <Project Path="src/OrchestratR/FortyOne.OrchestratR.csproj" />
   </Folder>
+  <Folder Name="/test/" />
 </Solution>
