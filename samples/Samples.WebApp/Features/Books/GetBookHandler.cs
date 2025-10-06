@@ -3,7 +3,7 @@ using Samples.WebApp.Entities;
 
 namespace Samples.WebApp.Features.Books
 {
-    public class GetBookHandler : IActionHandler<GetBookRequest, List<GetBookResponse>>
+    public class GetBookHandler : IRequestHandler<GetBookRequest, List<GetBookResponse>>
     {
         private readonly List<Book> _books;
 

@@ -10,13 +10,14 @@ namespace Samples.WebApp.Features.Books
 
             endpoint.MapGet("/api/books", async (IOrchestrator orchestrator, CancellationToken cancellationToken) =>
             {
-                var books = await orchestrator.SendAsync(new GetBookRequest(), cancellationToken);
+                
+                var books = await orchestrator.ExecuteAsync(new GetBookRequest(), cancellationToken);
                 return books;
             }).Produces<List<GetBookResponse>>();
 
             endpoint.MapGet("/api/books/{id}", async (int id,IOrchestrator orchestrator, CancellationToken cancellationToken) =>
             {
-                var books = await orchestrator.SendAsync(new GetBookRequest() { Id = id }, cancellationToken);
+                var books = await orchestrator.ExecuteAsync(new GetBookRequest() { Id = id }, cancellationToken);
                 return books.FirstOrDefault();
             }).Produces<GetBookResponse?>();
 

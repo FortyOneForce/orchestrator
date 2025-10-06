@@ -1,5 +1,5 @@
 ﻿namespace FortyOne.OrchestratR;
 
-public interface IHandlerBase
+public interface IRequestBase
 {
 }

@@ -15,13 +15,13 @@ internal static class Program
             {
                 // Registers all handlers from the current assembly as scoped
 
-                configure.RegisterHandlersFromAssembly(typeof(Program).Assembly, ServiceLifetime.Scoped);
+                configure.RegisterServicesFromAssembly(typeof(Program).Assembly, ServiceLifetime.Scoped);
 
                 // Registers action execution interceptors
 
                 configure
-                    .UseActionExecutionInterceptor(typeof(ExceptionHandlingInterceptor<,>))
-                    .UseActionExecutionInterceptor(typeof(RequestLoggerInterceptor<,>));
+                    .AddRequestInterceptor(typeof(ExceptionHandlingInterceptor<,>))
+                    .AddRequestInterceptor(typeof(RequestLoggerInterceptor<,>));
             });
             
 

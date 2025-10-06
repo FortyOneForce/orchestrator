@@ -2,7 +2,7 @@
 
 namespace Samples.WebApp.Interceptors
 {
-    public class ExceptionHandlingInterceptor<TRequest, TResponse> : IActionExecutionInterceptor<TRequest, TResponse>
+    public class ExceptionHandlingInterceptor<TRequest, TResponse> : IRequestInterceptor<TRequest, TResponse>
     {
         private readonly ILogger _logger;
         public ExceptionHandlingInterceptor(ILoggerFactory loggerFactory)
@@ -10,7 +10,7 @@ namespace Samples.WebApp.Interceptors
             _logger = loggerFactory.CreateLogger(typeof(TRequest));
         }
 
-        public async Task<TResponse> HandleAsync(IActionExecutionContext<TRequest> context, ActionExecutionDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<TResponse> HandleAsync(TRequest request, NextDelegate<TResponse> next, CancellationToken cancellationToken)
         {
             try
             {
@@ -18,7 +18,7 @@ namespace Samples.WebApp.Interceptors
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, "An unexpected error occurred while handling the request of type '{RequestType}'", context.RequestType.FullName);
+                _logger.LogError(ex, "An unexpected error occurred while handling the request of type '{RequestType}'", request.GetType().FullName);
 
                 throw;
             }
