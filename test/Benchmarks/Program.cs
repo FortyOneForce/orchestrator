@@ -6,7 +6,17 @@ namespace Benchmarks
     {
         static void Main(string[] args)
         {
-            BenchmarkRunner.Run<MediatorBenchmarks>(args: args);
+            var types = new Type[]
+            {
+                typeof(RequestBenchmark),
+                typeof(RequestInterceptorBenchmark),
+                typeof(RequestResponseBenchmark),
+                typeof(RequestResponseInterceptorBenchmark),
+                typeof(NotificationBenchmark),
+                typeof(NotificationHandlerBenchmark)
+            };
+
+            new BenchmarkSwitcher(types).Run(args: args);
         }
     }
 }

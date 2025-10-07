@@ -6,22 +6,19 @@ namespace FortyOne.OrchestratR.DependencyInjection;
 
 internal sealed class ServiceConfigurator : IServiceConfigurator
 {
-    public Dictionary<Assembly, Func<Type, ServiceLifetime>> Assemblies { get; } = new();
+    private Func<Type, HandlerKind, bool>? _handlerTypeFilterPredicate = null;
+    private Func<Type, ServiceLifetime>? _handlerTypeLifetimeSelector = null;
+
+    public HashSet<Assembly> Assemblies { get; } = new();
     public List<(Type InterceptorType, ServiceLifetime ServiceLifetime)> InterceptorTypes { get; } = new();
+    public Func<Type, ServiceLifetime> HandlerTypeLifetimeSelector => _handlerTypeLifetimeSelector ?? (_ => ServiceLifetime.Transient);
+    public Func<Type, HandlerKind, bool> HandlerTypeFilterPredicate => _handlerTypeFilterPredicate ?? ((_,_) => true);
 
-    public IServiceConfigurator RegisterServicesFromAssembly(Assembly assembly, ServiceLifetime serviceLifetime = ServiceLifetime.Transient)
+    public IServiceConfigurator RegisterServicesFromAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly);
 
-        return RegisterServicesFromAssembly(assembly, _ => serviceLifetime);
-    }
-
-    public IServiceConfigurator RegisterServicesFromAssembly(Assembly assembly, Func<Type, ServiceLifetime> serviceLifetimeSelector)
-    {
-        ArgumentNullException.ThrowIfNull(assembly);
-        ArgumentNullException.ThrowIfNull(serviceLifetimeSelector);
-
-        Assemblies[assembly] = serviceLifetimeSelector;
+        Assemblies.Add(assembly);
 
         return this;
     }
@@ -41,6 +38,34 @@ internal sealed class ServiceConfigurator : IServiceConfigurator
         }
 
         InterceptorTypes.Add((interceptorType, serviceLifetime));
+
+        return this;
+    }
+
+    public IServiceConfigurator WithHandlerTypeFilter(Func<Type, HandlerKind, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        if (_handlerTypeFilterPredicate != null)
+        {
+            throw new InvalidOperationException("Type filter has already been configured. Only one type filter can be set per configurator.");
+        }
+
+        _handlerTypeFilterPredicate = predicate;
+
+        return this;
+    }
+
+    public IServiceConfigurator WithHandlerTypeLifetime(Func<Type, ServiceLifetime> selector)
+    {
+        ArgumentNullException.ThrowIfNull(selector);
+
+        if (_handlerTypeLifetimeSelector != null)
+        {
+            throw new InvalidOperationException("Type lifetime selector has already been configured. Only one type lifetime selector can be set per configurator.");
+        }
+
+        _handlerTypeLifetimeSelector = selector;
 
         return this;
     }

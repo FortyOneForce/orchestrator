@@ -4,8 +4,14 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FortyOne.OrchestratR.DependencyInjection;
 
+/// <summary>
+/// Provides extension methods for <see cref="IServiceCollection"/> to register OrchestratR services.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Registers the OrchestratR mediator and all its required services with the dependency injection container.
+    /// </summary>
     public static IServiceCollection AddOrchestrator(this IServiceCollection services, Action<IServiceConfigurator> configure)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -39,6 +45,7 @@ public static class ServiceCollectionExtensions
         services.AddTransient<IOrchestrator, Orchestrator>();
         services.AddTransient<RequestExecutor>();
         services.AddTransient<NotificationPublisher>();
+        
     }
 
     private static void RegisterInterceptors(IServiceCollection services, ServiceConfigurator configurator)
@@ -46,15 +53,15 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configurator);
 
-        var interceptorFactory = new InterceptorFactory();
+        var interceptorRegistry = new InterceptorRegistry();
 
         foreach (var item in configurator.InterceptorTypes)
         {
             services.Add(new ServiceDescriptor(item.InterceptorType, item.InterceptorType, item.ServiceLifetime));
-            interceptorFactory.AddInterceptorType(item.InterceptorType);
+            interceptorRegistry.AddInterceptorType(item.InterceptorType);
         }
 
-        services.AddSingleton(interceptorFactory);
+        services.AddSingleton(interceptorRegistry);
     }
 
     private static void RegisterConfiguresServices(IServiceCollection services, ServiceConfigurator configurator)
@@ -62,47 +69,55 @@ public static class ServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configurator);
 
-        foreach(var registeredAssembly in configurator.Assemblies)
+        foreach(var assembly in configurator.Assemblies)
         {
-            var assembly = registeredAssembly.Key;
-            var serviceLifetimeSelector = registeredAssembly.Value;
-
             var handlerTypes = assembly.GetTypes()
                 .Where(type => type.IsConcreteAssignableTo<IHandlerBase>());
 
             foreach(var handlerType in handlerTypes)
             {
-                var lifetime = serviceLifetimeSelector(handlerType);
+                var lifetime = configurator.HandlerTypeLifetimeSelector(handlerType);
 
-                if (handlerType.TryGetEventHandlerInterfaces(out var eventHandlerInterfaces))
+                if (handlerType.TryGetNotificationHandlerInterfaces(out var notificationHandlerInterfaces))
                 {
-                    foreach(var eventHandlerInterface in eventHandlerInterfaces)
+                    if (configurator.HandlerTypeFilterPredicate(handlerType, HandlerKind.NotificationHandler))
                     {
-                        services.Add(new ServiceDescriptor(eventHandlerInterface, handlerType, lifetime));
+                        foreach (var notificationHandlerInterface in notificationHandlerInterfaces)
+                        {
+                            var notificationType = notificationHandlerInterface.GetGenericArguments()[0];
+                            var handlerInterfaceType = typeof(INotificationHandler<>).MakeGenericType(notificationType);
+                            var proxyType = typeof(NotificationHandlerProxy<>).MakeGenericType(notificationType);
+
+                            services.Add(new ServiceDescriptor(handlerInterfaceType, handlerType, lifetime));
+                            services.AddTransient(proxyType);
+                        }
                     }
                 }
 
-                if (handlerType.TryGetActionHandlerInterfaces(out var actionHandlerInterfaces))
+                if (handlerType.TryGetRequstHandlerInterfaces(out var requestHandlerInterfaces))
                 {
-                    foreach(var actionHandlerInterface in actionHandlerInterfaces)
+                    if (configurator.HandlerTypeFilterPredicate(handlerType, HandlerKind.RequestHandler))
                     {
-                        var interfaceGenericAurguments = actionHandlerInterface.GetGenericArguments();
-                        services.Add(new ServiceDescriptor(actionHandlerInterface, handlerType, lifetime));
-
-                        if (interfaceGenericAurguments.Length == 1)
+                        foreach (var requestHandlerInterface in requestHandlerInterfaces)
                         {
-                            var requestType = interfaceGenericAurguments[0];
-                            var proxyType = typeof(HandlerPropxy<>).MakeGenericType(requestType);
+                            var interfaceGenericAurguments = requestHandlerInterface.GetGenericArguments();
+                            services.Add(new ServiceDescriptor(requestHandlerInterface, handlerType, lifetime));
 
-                            services.AddTransient(proxyType);
-                        }
-                        else if (interfaceGenericAurguments.Length == 2)
-                        {
-                            var requestType = interfaceGenericAurguments[0];
-                            var responseType = interfaceGenericAurguments[1];
-                            var proxyType = typeof(HandlerWithResponseProxy<,>).MakeGenericType(requestType, responseType);
+                            if (interfaceGenericAurguments.Length == 1)
+                            {
+                                var requestType = interfaceGenericAurguments[0];
+                                var proxyType = typeof(HandlerPropxy<>).MakeGenericType(requestType);
 
-                            services.AddTransient(proxyType);
+                                services.AddTransient(proxyType);
+                            }
+                            else if (interfaceGenericAurguments.Length == 2)
+                            {
+                                var requestType = interfaceGenericAurguments[0];
+                                var responseType = interfaceGenericAurguments[1];
+                                var proxyType = typeof(HandlerWithResponseProxy<,>).MakeGenericType(requestType, responseType);
+
+                                services.AddTransient(proxyType);
+                            }
                         }
                     }
                 }

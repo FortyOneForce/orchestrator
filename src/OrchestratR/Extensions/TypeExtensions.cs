@@ -1,6 +1,4 @@
-﻿using System.Reflection;
-
-namespace FortyOne.OrchestratR.Extensions;
+﻿namespace FortyOne.OrchestratR.Extensions;
 
 internal static class TypeExtensions
 {
@@ -19,27 +17,27 @@ internal static class TypeExtensions
             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequestInterceptor<,>));
     }
 
-    public static bool TryGetEventHandlerInterfaces(this Type type, out Type[] eventHandlerInterfaces)
+    public static bool TryGetNotificationHandlerInterfaces(this Type type, out Type[] notificationHandlerInterfaces)
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        eventHandlerInterfaces = type.GetInterfaces()
+        notificationHandlerInterfaces = type.GetInterfaces()
             .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(INotificationHandler<>))
             .ToArray();
 
-        return eventHandlerInterfaces.Length != 0;
+        return notificationHandlerInterfaces.Length != 0;
     }
 
-    public static bool TryGetActionHandlerInterfaces(this Type type, out Type[] actionHandlerInterfaces)
+    public static bool TryGetRequstHandlerInterfaces(this Type type, out Type[] requestHandlerInterfaces)
     {
         ArgumentNullException.ThrowIfNull(type);
 
-        actionHandlerInterfaces = type.GetInterfaces()
+        requestHandlerInterfaces = type.GetInterfaces()
             .Where(i => i.IsGenericType)
             .Where(i => i.GetGenericTypeDefinition() == typeof(IRequestHandler<>) || i.GetGenericTypeDefinition() == typeof(IRequestHandler<,>))
             .ToArray();
 
-        return actionHandlerInterfaces.Length != 0;
+        return requestHandlerInterfaces.Length != 0;
     }
         
 }

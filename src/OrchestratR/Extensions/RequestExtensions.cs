@@ -22,5 +22,13 @@ namespace FortyOne.OrchestratR.Extensions
             var requestType = request.GetType();
             return _proxyTypeCache.GetOrAdd(requestType, _ => typeof(HandlerWithResponseProxy<,>).MakeGenericType(requestType, typeof(TResponse)));
         }
+
+        public static Type GetEnumerableProxyType(this INotification notification)
+        {
+            ArgumentNullException.ThrowIfNull(notification);
+
+            var notificationType = notification.GetType();
+            return _proxyTypeCache.GetOrAdd(notificationType, _ => typeof(IEnumerable<>).MakeGenericType(typeof(NotificationHandlerProxy<>).MakeGenericType(notificationType)));
+        }
     }
 }
