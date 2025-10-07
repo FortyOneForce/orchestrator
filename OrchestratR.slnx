@@ -10,5 +10,7 @@
     <Project Path="src/Abstractions/FortyOne.OrchestratR.Abstractions.csproj" />
     <Project Path="src/OrchestratR/FortyOne.OrchestratR.csproj" />
   </Folder>
-  <Folder Name="/test/" />
+  <Folder Name="/test/">
+    <Project Path="test/Benchmarks/Benchmarks.csproj" Id="4c8a6628-bfa5-40f2-a9c0-6beaf5f621ff" />
+  </Folder>
 </Solution>

@@ -4,7 +4,7 @@ using Samples.WebApp.RequestMarkers;
 
 namespace Samples.WebApp.Interceptors
 {
-    public class RequestLoggerInterceptor<TRequest, TResponse> : IActionExecutionInterceptor<TRequest, TResponse>
+    public class RequestLoggerInterceptor<TRequest, TResponse> : IRequestInterceptor<TRequest, TResponse>
     {
         private readonly ILogger _logger;
         public RequestLoggerInterceptor(ILoggerFactory loggerFactory)
@@ -12,21 +12,21 @@ namespace Samples.WebApp.Interceptors
             _logger = loggerFactory.CreateLogger(typeof(TRequest));
         }
 
-        public Task<TResponse> HandleAsync(IActionExecutionContext<TRequest> context, ActionExecutionDelegate<TResponse> next, CancellationToken cancellationToken)
+        public Task<TResponse> HandleAsync(TRequest request, NextDelegate<TResponse> next, CancellationToken cancellationToken)
         {
-            if (context.RequestType.IsAssignableTo(typeof(ILoggableRequest)))
+            if (request.GetType().IsAssignableTo(typeof(ILoggableRequest)))
             {
-                var requestData = JsonConvert.SerializeObject(context.Request, Formatting.None, new JsonSerializerSettings
+                var requestData = JsonConvert.SerializeObject(request, Formatting.None, new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Ignore,
                     ReferenceLoopHandling = ReferenceLoopHandling.Ignore
                 });
 
-                _logger.LogDebug("Processing request {RequestType} with values {RequestData}", context.RequestType.FullName, requestData);
+                _logger.LogDebug("Processing request {RequestType} with values {RequestData}", request.GetType().FullName, requestData);
             }
             else
             {
-                _logger.LogDebug("Processing request {RequestType}", context.RequestType.FullName);
+                _logger.LogDebug("Processing request {RequestType}", request.GetType().FullName);
             }
 
             return next();
