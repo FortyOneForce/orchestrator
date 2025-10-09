@@ -1,5 +1,5 @@
 ﻿using FortyOne.OrchestratR.Extensions;
-using FortyOne.OrchestratR.Proxies;
+using FortyOne.OrchestratR.HandlerProxies;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FortyOne.OrchestratR.DependencyInjection;
@@ -42,10 +42,9 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        services.AddTransient<IRequestOrchestrator, Orchestrator>();
+        services.AddTransient<INotificationOrchestrator, Orchestrator>();
         services.AddTransient<IOrchestrator, Orchestrator>();
-        services.AddTransient<RequestExecutor>();
-        services.AddTransient<NotificationPublisher>();
-        
     }
 
     private static void RegisterInterceptors(IServiceCollection services, ServiceConfigurator configurator)
@@ -106,17 +105,17 @@ public static class ServiceCollectionExtensions
                             if (interfaceGenericAurguments.Length == 1)
                             {
                                 var requestType = interfaceGenericAurguments[0];
-                                var proxyType = typeof(HandlerPropxy<>).MakeGenericType(requestType);
+                                var proxyType = typeof(RequestHandlerPropxy<>).MakeGenericType(requestType);
 
-                                services.AddTransient(proxyType);
+                                services.AddSingleton(proxyType);
                             }
                             else if (interfaceGenericAurguments.Length == 2)
                             {
                                 var requestType = interfaceGenericAurguments[0];
                                 var responseType = interfaceGenericAurguments[1];
-                                var proxyType = typeof(HandlerWithResponseProxy<,>).MakeGenericType(requestType, responseType);
+                                var proxyType = typeof(RequestHandlerProxy<,>).MakeGenericType(requestType, responseType);
 
-                                services.AddTransient(proxyType);
+                                services.AddSingleton(proxyType);
                             }
                         }
                     }

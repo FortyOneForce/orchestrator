@@ -1,4 +1,6 @@
-﻿namespace FortyOne.OrchestratR;
+﻿#pragma warning disable IDE0130
+namespace FortyOne.OrchestratR;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// Defines a handler for processing requests that don't return a value.

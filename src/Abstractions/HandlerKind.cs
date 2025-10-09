@@ -1,4 +1,5 @@
-﻿namespace FortyOne.OrchestratR;
+﻿
+namespace FortyOne.OrchestratR;
 
 /// <summary>
 /// Specifies the category of handler within the OrchestratR implementation.

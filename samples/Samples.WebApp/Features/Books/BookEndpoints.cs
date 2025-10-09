@@ -12,8 +12,11 @@ namespace Samples.WebApp.Features.Books
             endpoint.MapGet("/api/books", async (IOrchestrator orchestrator, CancellationToken cancellationToken) =>
             {
                 
-                var books = await orchestrator.ExecuteAsync(new GetBookRequest(), cancellationToken);
+                var books = await orchestrator
+                    .ExecuteAsync(new GetBookRequest(), cancellationToken);
+
                 return books;
+
             }).Produces<List<GetBookResponse>>();
 
             endpoint.MapGet("/api/books/{id}", async (int id,IOrchestrator orchestrator, CancellationToken cancellationToken) =>
@@ -26,8 +29,28 @@ namespace Samples.WebApp.Features.Books
             {
                 request.Id = id;
 
-                await orchestrator.ExecuteAsync(request, CancellationToken);
-                await orchestrator.NotifyAsync(new BookUpdatedNotification { Id = id }, CancellationToken);
+                IExecutionTree executionTree;
+
+                try
+                {
+                    await orchestrator.ExecuteAsync(request, middleware => middleware.UseExecutionTree(out executionTree) , CancellationToken);
+
+                    await orchestrator.NotifyAsync(
+                        new BookUpdatedNotification { Id = id },
+                        middleware =>
+                        {
+                            middleware.UseExecutionTree(out executionTree);
+                        },
+                        CancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    
+                }
+
+                //await Task.WhenAll(
+                //    orchestrator.WithExecutionStack(out var requestStack).ExecuteAsync(request, CancellationToken), 
+                //    orchestrator.WithExecutionStack(out var notificationStack).NotifyAsync(new BookUpdatedNotification { Id = id }, CancellationToken));
 
                 return Results.NoContent();
             });

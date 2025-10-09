@@ -38,15 +38,6 @@ namespace Benchmarks
         public async Task OrchestratorExecute() => await _serviceProvider.GetRequiredService<IOrchestrator>().NotifyAsync(_notification);
 
         [Benchmark]
-        public async Task OrchestratorExecuteSequential() => await _serviceProvider.GetRequiredService<IOrchestrator>().NotifyAsync(_notification, NotificationProcessingOptions.Sequential);
-
-        [Benchmark]
-        public async Task OrchestratorExecuteTransactional() => await _serviceProvider.GetRequiredService<IOrchestrator>().NotifyAsync(_notification, NotificationProcessingOptions.Transactional);
-
-        [Benchmark]
-        public async Task OrchestratorExecuteContinueOnError() => await _serviceProvider.GetRequiredService<IOrchestrator>().NotifyAsync(_notification, NotificationProcessingOptions.ContinueOnError);
-
-        [Benchmark]
         public async Task MediatorSendRequest() => await _serviceProvider.GetRequiredService<IMediator>().Publish(_notification);
 
 

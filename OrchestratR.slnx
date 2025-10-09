@@ -1,5 +1,8 @@
 <Solution>
-  <Folder Name="/doc/" />
+  <Folder Name="/doc/">
+    <File Path="doc/Benchmarks 2025-10-07.md" />
+    <File Path="doc/Benchmarks 2025-10-09.md" />
+  </Folder>
   <Folder Name="/doc/assets/">
     <File Path="doc/assets/icon.png" />
   </Folder>

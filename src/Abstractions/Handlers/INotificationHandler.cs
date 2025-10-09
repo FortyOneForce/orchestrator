@@ -1,4 +1,6 @@
-﻿namespace FortyOne.OrchestratR;
+﻿#pragma warning disable IDE0130
+namespace FortyOne.OrchestratR;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// Defines a handler for a specific notification type in the publish-subscribe pattern.
