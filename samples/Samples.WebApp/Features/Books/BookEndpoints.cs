@@ -13,7 +13,7 @@ namespace Samples.WebApp.Features.Books
             {
                 
                 var books = await orchestrator
-                    .ExecuteAsync(new GetBookRequest(), cancellationToken);
+                    .SendAsync(new GetBookRequest(), cancellationToken);
 
                 return books;
 
@@ -21,7 +21,7 @@ namespace Samples.WebApp.Features.Books
 
             endpoint.MapGet("/api/books/{id}", async (int id,IOrchestrator orchestrator, CancellationToken cancellationToken) =>
             {
-                var books = await orchestrator.ExecuteAsync(new GetBookRequest() { Id = id }, cancellationToken);
+                var books = await orchestrator.SendAsync(new GetBookRequest() { Id = id }, cancellationToken);
                 return books.FirstOrDefault();
             }).Produces<GetBookResponse?>();
 
@@ -31,7 +31,7 @@ namespace Samples.WebApp.Features.Books
 
                 try
                 {
-                    await orchestrator.ExecuteAsync(
+                    await orchestrator.SendAsync(
                         request,
                         middleware => 
                         { 

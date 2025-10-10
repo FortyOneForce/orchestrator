@@ -7,6 +7,7 @@ namespace FortyOne.OrchestratR;
 /// </summary>
 public interface IOrchestrator : 
     IRequestOrchestrator, 
-    INotificationOrchestrator
+    INotificationOrchestrator,
+    ICommandOrchestrator
 {
 }

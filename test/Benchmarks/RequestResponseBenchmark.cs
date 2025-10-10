@@ -35,7 +35,7 @@ namespace Benchmarks
 
 
         [Benchmark(Baseline = true)]
-        public async Task OrchestratorExecute() => await _serviceProvider.GetRequiredService<IOrchestrator>().ExecuteAsync(_request);
+        public async Task OrchestratorExecute() => await _serviceProvider.GetRequiredService<IOrchestrator>().SendAsync(_request);
 
         [Benchmark]
         public async Task MediatorSendRequest() => await _serviceProvider.GetRequiredService<IMediator>().Send(_request);

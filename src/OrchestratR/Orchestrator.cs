@@ -61,18 +61,40 @@ internal sealed class Orchestrator : IOrchestrator
 
     // IRequest
 
-    public Task ExecuteAsync(IRequest request, CancellationToken cancellationToken = default)
+    public Task SendAsync(IRequest request, CancellationToken cancellationToken = default)
         => DispatchRequest(request, null, cancellationToken);
 
-    public Task ExecuteAsync(IRequest request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
+    public Task SendAsync(IRequest request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
         => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
 
     // IRequest<TResponse>
 
-    public Task<TResponse> ExecuteAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         => DispatchRequest(request, null, cancellationToken);
 
-    public Task<TResponse> ExecuteAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
+    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
+        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
+
+    #endregion
+
+    #region [ ICommandOrchestrator Members ]
+
+    // ICommand
+
+    public Task<Result> ExecuteAsync(ICommand request, CancellationToken cancellationToken = default)
+        => DispatchRequest(request, null, cancellationToken);
+
+    public Task<Result> ExecuteAsync(ICommand request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
+        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
+
+    // ICommand<TResponse>
+
+    public Task<Result<TResponse>> ExecuteAsync<TResponse>(ICommand<TResponse> request, CancellationToken cancellationToken = default) 
+        where TResponse : class
+        => DispatchRequest(request, null, cancellationToken);
+
+    public Task<Result<TResponse>> ExecuteAsync<TResponse>(ICommand<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
+        where TResponse : class
         => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
 
     #endregion

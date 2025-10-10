@@ -4,10 +4,10 @@ namespace FortyOne.OrchestratR;
 
 public interface IRequestOrchestrator
 {
-    Task ExecuteAsync(IRequest request, CancellationToken cancellationToken = default);
-    Task ExecuteAsync(IRequest request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default);
+    Task SendAsync(IRequest request, CancellationToken cancellationToken = default);
+    Task SendAsync(IRequest request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default);
 
 
-    Task<TResponse> ExecuteAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
-    Task<TResponse> ExecuteAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default);
+    Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default);
+    Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default);
 }

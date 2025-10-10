@@ -44,7 +44,9 @@ public static class ServiceCollectionExtensions
 
         services.AddTransient<IRequestOrchestrator, Orchestrator>();
         services.AddTransient<INotificationOrchestrator, Orchestrator>();
+        services.AddTransient<ICommandOrchestrator, Orchestrator>();
         services.AddTransient<IOrchestrator, Orchestrator>();
+        
     }
 
     private static void RegisterInterceptors(IServiceCollection services, ServiceConfigurator configurator)
