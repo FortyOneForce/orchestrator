@@ -7,5 +7,5 @@ namespace FortyOne.OrchestratR;
 public interface INotificationExecutionMiddleware
 {
     INotificationExecutionMiddleware UseSequentialExecution(bool sequentialExecution = true);
-    INotificationExecutionMiddleware UseExecutionTree(out IExecutionTree executionRootNode);
+    INotificationExecutionMiddleware UseTimeout(TimeSpan timeout);
 }

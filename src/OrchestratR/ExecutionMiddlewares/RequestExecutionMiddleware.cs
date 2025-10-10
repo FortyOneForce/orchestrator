@@ -1,16 +1,15 @@
 ﻿#pragma warning disable IDE0130
+
 namespace FortyOne.OrchestratR;
 #pragma warning restore IDE0130
 
 internal sealed class RequestExecutionMiddleware : IRequestExecutionMiddleware
 {
-    public ExecutionNode? ExecutionRootNode { get; private set; }
+    public TimeSpan? Timeout { get; private set; }
 
-    public IRequestExecutionMiddleware UseExecutionTree(out IExecutionTree executionRootNode)
+    public IRequestExecutionMiddleware UseTimeout(TimeSpan timeout)
     {
-        ExecutionRootNode = new ExecutionNode();
-        executionRootNode = ExecutionRootNode;
-
+        Timeout = timeout;
         return this;
     }
 }

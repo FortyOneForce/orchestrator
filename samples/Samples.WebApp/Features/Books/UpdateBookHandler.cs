@@ -6,6 +6,8 @@ namespace Samples.WebApp.Features.Books
     {
         public async Task HandleAsync(UpdateBookRequest request, CancellationToken cancellationToken)
         {
+            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+
             // Do nothing, just a sample
         }
     }

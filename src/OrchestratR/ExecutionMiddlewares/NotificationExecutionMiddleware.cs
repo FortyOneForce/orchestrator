@@ -7,19 +7,17 @@ namespace FortyOne.OrchestratR;
 internal sealed class NotificationExecutionMiddleware : INotificationExecutionMiddleware
 {
     public bool SequentialExecution { get; private set; } = false;
-    public ExecutionNode? ExecutionRootNode { get; private set; }
-
-    public INotificationExecutionMiddleware UseExecutionTree(out IExecutionTree executionRootNode)
-    {
-        ExecutionRootNode = new ExecutionNode();
-        executionRootNode = ExecutionRootNode;
-
-        return this;
-    }
+    public TimeSpan? Timeout { get; private set; }
 
     public INotificationExecutionMiddleware UseSequentialExecution(bool sequentialExecution = true)
     {
         SequentialExecution = sequentialExecution;
+        return this;
+    }
+
+    public INotificationExecutionMiddleware UseTimeout(TimeSpan timeout)
+    {
+        Timeout = timeout;
         return this;
     }
 }

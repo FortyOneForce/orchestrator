@@ -4,5 +4,5 @@ namespace FortyOne.OrchestratR;
 
 public interface IRequestExecutionMiddleware
 {
-    IRequestExecutionMiddleware UseExecutionTree(out IExecutionTree executionRootNode);
+    IRequestExecutionMiddleware UseTimeout(TimeSpan timeout);
 }

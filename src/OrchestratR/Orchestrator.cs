@@ -44,6 +44,17 @@ internal sealed class Orchestrator : IOrchestrator
         return instance;
     }
 
+    private CancellationTokenSource CreateCancellationTokenSource(CancellationToken cancellationToken, TimeSpan? timeout)
+    {
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        if (timeout != null && timeout != TimeSpan.Zero)
+        {
+            cts.CancelAfter(timeout.Value);
+        }
+
+        return cts;
+    }
+
     #endregion
 
     #region [ IRequestOrchestrator Members ]
@@ -85,55 +96,34 @@ internal sealed class Orchestrator : IOrchestrator
     {
         ArgumentNullException.ThrowIfNull(notification);
 
-        var rootNode = middleware?.ExecutionRootNode?.Start();
+        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
 
         var notificationType = notification.GetType();
         if (_notHandledNotifications.ContainsKey(notificationType))
         {
-            rootNode?.Complete(ExecutionState.Skipped);
             return;
         }
-
-        var resolveProxyNode = rootNode?.AddExecution(ExecutionOperation.ResolveProxy);
 
         var enumerableProxyType = _proxyTypeCache.GetOrAdd(notificationType, (key) => typeof(IEnumerable<>).MakeGenericType(typeof(NotificationHandlerProxy<>).MakeGenericType(key)));
         var proxyInstances = ((IEnumerable<INotificationHandlerProxy>)_serviceProvider.GetRequiredService(enumerableProxyType)).ToArray();
 
-        resolveProxyNode?.Complete();
 
         if (proxyInstances.Length == 0)
         {
-            rootNode?.Complete(ExecutionState.Skipped);
-
             _notHandledNotifications.TryAdd(notificationType, true);
             return;
         }
 
-        ExecutionNode? proxyNode = null;
-        var isFailed = true;
-
-        try
+        if (middleware?.SequentialExecution == true)
         {
-            if (middleware?.SequentialExecution == true)
+            for (int i = 0; i < proxyInstances.Length; i++)
             {
-                proxyNode = rootNode?.AddExecution(ExecutionOperation.SequentialExecution);
-                for (int i = 0; i < proxyInstances.Length; i++)
-                {
-                    await proxyInstances[i].ProxyHandleAsync(proxyNode, notification, middleware, cancellationToken);
-                }
+                await proxyInstances[i].ProxyHandleAsync(notification, middleware, cts.Token);
             }
-            else
-            {
-                proxyNode = rootNode?.AddExecution(ExecutionOperation.ParallelExecution);
-                await Task.WhenAll(proxyInstances.Select(i => i.ProxyHandleAsync(proxyNode, notification, middleware, cancellationToken)));
-            }
-
-            isFailed = false;
         }
-        finally
+        else
         {
-            proxyNode?.Complete(isFailed);
-            rootNode?.Complete(isFailed);
+            await Task.WhenAll(proxyInstances.Select(i => i.ProxyHandleAsync(notification, middleware, cts.Token)));
         }
     }
 
@@ -141,9 +131,7 @@ internal sealed class Orchestrator : IOrchestrator
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var rootNode = middleware?.ExecutionRootNode?.Start();
-
-        var resolveProxyNode = rootNode?.AddExecution(ExecutionOperation.ResolveProxy);
+        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
 
         var requestType = request.GetType();
         var proxyInstance = (IRequestHandlerPropxy)_requestProxyInstances.GetOrAdd(requestType, (key) =>
@@ -152,31 +140,14 @@ internal sealed class Orchestrator : IOrchestrator
             return _serviceProvider.GetRequiredService(proxyType);
         });
 
-        resolveProxyNode?.Complete();
-
-        var proxyNode = rootNode?.AddExecution(ExecutionOperation.ProxyHandlerExecution);
-        var isFailed = true;
-
-        try
-        {
-            await proxyInstance.ProxyHandleAsync(proxyNode, _serviceProvider, request, middleware, cancellationToken);
-
-            isFailed = false;
-        }
-        finally
-        {
-            proxyNode?.Complete(isFailed);
-            rootNode?.Complete(isFailed);
-        }
+        await proxyInstance.ProxyHandleAsync(_serviceProvider, request, middleware, cts.Token);
     }
 
     private async Task<TResponse> DispatchRequest<TResponse>(IRequest<TResponse> request, RequestExecutionMiddleware? middleware, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var rootNode = middleware?.ExecutionRootNode?.Start();
-
-        var resolveProxyNode = rootNode?.AddExecution(ExecutionOperation.ResolveProxy);
+        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
 
         var requestType = request.GetType();
         var proxyInstance = (IRequestHandlerProxy<TResponse>)_requestProxyInstances.GetOrAdd(requestType, (key) =>
@@ -185,23 +156,8 @@ internal sealed class Orchestrator : IOrchestrator
             return _serviceProvider.GetRequiredService(proxyType);
         });
 
-        resolveProxyNode?.Complete();
 
-        var proxyNode = rootNode?.AddExecution(ExecutionOperation.ProxyHandlerExecution);
-        var isFailed = true;
-
-        try
-        {
-            var response = await proxyInstance.ProxyHandleAsync(proxyNode, _serviceProvider, request, middleware, cancellationToken);
-            isFailed = false;
-
-            return response;
-        }
-        finally
-        {
-            proxyNode?.Complete(isFailed);
-            rootNode?.Complete(isFailed);
-        }
+        return await proxyInstance.ProxyHandleAsync(_serviceProvider, request, middleware, cts.Token);
     }
 
     #endregion

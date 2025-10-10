@@ -29,18 +29,18 @@ namespace Samples.WebApp.Features.Books
             {
                 request.Id = id;
 
-                IExecutionTree executionTree;
-
                 try
                 {
-                    await orchestrator.ExecuteAsync(request, middleware => middleware.UseExecutionTree(out executionTree) , CancellationToken);
+                    await orchestrator.ExecuteAsync(
+                        request,
+                        middleware => 
+                        { 
+                            // middleware.UseTimeout(TimeSpan.FromMilliseconds(300)); 
+                        } , CancellationToken);
 
                     await orchestrator.NotifyAsync(
                         new BookUpdatedNotification { Id = id },
-                        middleware =>
-                        {
-                            middleware.UseExecutionTree(out executionTree);
-                        },
+                        middleware => { },
                         CancellationToken);
                 }
                 catch (Exception ex)
