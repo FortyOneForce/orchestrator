@@ -3,7 +3,7 @@
 		<PackageId>FortyOne.OrchestratR.Abstractions</PackageId>
 		<AssemblyName>FortyOne.OrchestratR.Abstractions</AssemblyName>
 		<RootNamespace>FortyOne.OrchestratR</RootNamespace>
-		<Description>Core abstractions for the OrchestratR library, providing interfaces for CQRS and mediator pattern implementation. Contains request/response contracts, handler definitions, and pipeline interception abstractions.</Description>
+		<Description>Core abstractions for the OrchestratR library, a lightweight .NET mediator implementation supporting CQRS and event-driven patterns. Defines the foundational interfaces for request/response processing, notification dispatching, and pipeline interception. Includes contracts for command and query handlers, notification subscribers, and middleware components. Designed for modern .NET applications targeting .NET 8 and .NET 9 with minimal dependencies.</Description>
 	</PropertyGroup>
 
 	<ItemGroup>
