@@ -14,6 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\Extensions\FortyOne.OrchestratR.Extensions.csproj" />
     <ProjectReference Include="..\..\src\OrchestratR\FortyOne.OrchestratR.csproj" />
   </ItemGroup>
 

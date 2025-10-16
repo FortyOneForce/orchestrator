@@ -1,5 +1,6 @@
 ﻿using FortyOne.OrchestratR;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 
 namespace Samples.WebApp.Features.Books
 {
@@ -31,10 +32,10 @@ namespace Samples.WebApp.Features.Books
 
                 try
                 {
-                    await orchestrator.SendAsync(
+                    var response = await orchestrator.SendAsync(
                         request,
                         middleware => 
-                        { 
+                        {
                             // middleware.UseTimeout(TimeSpan.FromMilliseconds(300)); 
                         } , CancellationToken);
 

@@ -1,5 +1,4 @@
-﻿using FortyOne.OrchestratR.HandlerProxies;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
 namespace FortyOne.OrchestratR;
@@ -18,27 +17,27 @@ internal sealed class Orchestrator : IOrchestrator
 
     #region [ Creators ]
 
-    private RequestExecutionMiddleware? CreateRequestMiddleware(Action<IRequestExecutionMiddleware>? action)
+    private RequestExecutionParameters? CreateRequestExecutionParameters(Action<IRequestExecutionParameters>? action)
     {
         if (action is null)
         {
             return null;
         }
 
-        var instance = new RequestExecutionMiddleware();
+        var instance = new RequestExecutionParameters();
         action(instance);
 
         return instance;
     }
 
-    private NotificationExecutionMiddleware? CreateNotificationMiddleware(Action<INotificationExecutionMiddleware>? action)
+    private NotificationExecutionParameters? CreateNotificationExecutionParameters(Action<INotificationExecutionParameters>? action)
     {
         if (action is null)
         {
             return null;
         }
 
-        var instance = new NotificationExecutionMiddleware();
+        var instance = new NotificationExecutionParameters();
         action(instance);
 
         return instance;
@@ -64,38 +63,16 @@ internal sealed class Orchestrator : IOrchestrator
     public Task SendAsync(IRequest request, CancellationToken cancellationToken = default)
         => DispatchRequest(request, null, cancellationToken);
 
-    public Task SendAsync(IRequest request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
-        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
+    public Task SendAsync(IRequest request, Action<IRequestExecutionParameters> parameters, CancellationToken cancellationToken = default)
+        => DispatchRequest(request, CreateRequestExecutionParameters(parameters), cancellationToken);
 
     // IRequest<TResponse>
 
     public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
         => DispatchRequest(request, null, cancellationToken);
 
-    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
-        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
-
-    #endregion
-
-    #region [ ICommandOrchestrator Members ]
-
-    // ICommand
-
-    public Task<Result> ExecuteAsync(ICommand request, CancellationToken cancellationToken = default)
-        => DispatchRequest(request, null, cancellationToken);
-
-    public Task<Result> ExecuteAsync(ICommand request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
-        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
-
-    // ICommand<TResponse>
-
-    public Task<Result<TResponse>> ExecuteAsync<TResponse>(ICommand<TResponse> request, CancellationToken cancellationToken = default) 
-        where TResponse : class
-        => DispatchRequest(request, null, cancellationToken);
-
-    public Task<Result<TResponse>> ExecuteAsync<TResponse>(ICommand<TResponse> request, Action<IRequestExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
-        where TResponse : class
-        => DispatchRequest(request, CreateRequestMiddleware(middleware), cancellationToken);
+    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request, Action<IRequestExecutionParameters> parameters, CancellationToken cancellationToken = default)
+        => DispatchRequest(request, CreateRequestExecutionParameters(parameters), cancellationToken);
 
     #endregion
 
@@ -104,8 +81,8 @@ internal sealed class Orchestrator : IOrchestrator
     public Task NotifyAsync(INotification notification, CancellationToken cancellationToken = default)
         => DispatchNotification(notification, null, cancellationToken);
 
-    public Task NotifyAsync(INotification notification, Action<INotificationExecutionMiddleware> middleware, CancellationToken cancellationToken = default)
-        => DispatchNotification(notification, CreateNotificationMiddleware(middleware), cancellationToken);
+    public Task NotifyAsync(INotification notification, Action<INotificationExecutionParameters> parameters, CancellationToken cancellationToken = default)
+        => DispatchNotification(notification, CreateNotificationExecutionParameters(parameters), cancellationToken);
 
     #endregion
 
@@ -113,12 +90,12 @@ internal sealed class Orchestrator : IOrchestrator
 
     private async Task DispatchNotification<TNotification>(
         TNotification notification,
-        NotificationExecutionMiddleware? middleware,
+        NotificationExecutionParameters? parameters,
         CancellationToken cancellationToken = default) where TNotification : INotification
     {
         ArgumentNullException.ThrowIfNull(notification);
 
-        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
+        using var cts = CreateCancellationTokenSource(cancellationToken, parameters?.Timeout);
 
         var notificationType = notification.GetType();
         if (_notHandledNotifications.ContainsKey(notificationType))
@@ -136,40 +113,41 @@ internal sealed class Orchestrator : IOrchestrator
             return;
         }
 
-        if (middleware?.SequentialExecution == true)
+        if (parameters?.SequentialExecution == true)
         {
             for (int i = 0; i < proxyInstances.Length; i++)
             {
-                await proxyInstances[i].ProxyHandleAsync(notification, middleware, cts.Token);
+                await proxyInstances[i].ProxyHandleAsync(notification, parameters, cts.Token);
             }
         }
         else
         {
-            await Task.WhenAll(proxyInstances.Select(i => i.ProxyHandleAsync(notification, middleware, cts.Token)));
+            await Task.WhenAll(proxyInstances.Select(i => i.ProxyHandleAsync(notification, parameters, cts.Token)));
         }
     }
 
-    private async Task DispatchRequest(IRequest request, RequestExecutionMiddleware? middleware, CancellationToken cancellationToken)
+    private async Task DispatchRequest(IRequest request, RequestExecutionParameters? parameters, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
+        using var cts = CreateCancellationTokenSource(cancellationToken, parameters?.Timeout);
 
         var requestType = request.GetType();
-        var proxyInstance = (IRequestHandlerPropxy)_requestProxyInstances.GetOrAdd(requestType, (key) =>
+        var proxyInstance = (IRequestHandlerProxy)_requestProxyInstances.GetOrAdd(requestType, (key) =>
         {
-            var proxyType = typeof(RequestHandlerPropxy<>).MakeGenericType(key);
+            var proxyType = typeof(RequestHandlerProxy<>).MakeGenericType(key);
             return _serviceProvider.GetRequiredService(proxyType);
         });
 
-        await proxyInstance.ProxyHandleAsync(_serviceProvider, request, middleware, cts.Token);
+        await proxyInstance.ProxyHandleAsync(_serviceProvider, request, parameters, cts.Token);
     }
 
-    private async Task<TResponse> DispatchRequest<TResponse>(IRequest<TResponse> request, RequestExecutionMiddleware? middleware, CancellationToken cancellationToken = default)
+    private async Task<TResponse> DispatchRequest<TResponse>(IRequest<TResponse> request, RequestExecutionParameters? parameters, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        using var cts = CreateCancellationTokenSource(cancellationToken, middleware?.Timeout);
+
+        using var cts = CreateCancellationTokenSource(cancellationToken, parameters?.Timeout);
 
         var requestType = request.GetType();
         var proxyInstance = (IRequestHandlerProxy<TResponse>)_requestProxyInstances.GetOrAdd(requestType, (key) =>
@@ -178,8 +156,8 @@ internal sealed class Orchestrator : IOrchestrator
             return _serviceProvider.GetRequiredService(proxyType);
         });
 
-
-        return await proxyInstance.ProxyHandleAsync(_serviceProvider, request, middleware, cts.Token);
+        var response = await proxyInstance.ProxyHandleAsync(_serviceProvider, request, parameters, cts.Token);
+        return response;
     }
 
     #endregion

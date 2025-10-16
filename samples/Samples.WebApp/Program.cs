@@ -1,7 +1,5 @@
-﻿using Samples.WebApp.Features.Books;
-using FortyOne.OrchestratR.DependencyInjection;
-using Samples.WebApp.Interceptors;
-using FortyOne.OrchestratR;
+﻿using FortyOne.OrchestratR.DependencyInjection;
+using Samples.WebApp.Features.Books;
 
 namespace Samples.WebApp;
 
@@ -10,6 +8,10 @@ internal static class Program
     static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services
+            .AddLogging()
+            .AddMemoryCache();
 
         builder.Services
             .AddOrchestrator(configure =>
@@ -21,8 +23,10 @@ internal static class Program
                 // Registers action execution interceptors
 
                 configure
-                    .AddRequestInterceptor(typeof(ExceptionHandlingInterceptor<,>))
-                    .AddRequestInterceptor(typeof(RequestLoggerInterceptor<,>));
+                    .AddDefaultRequestInterceptors(options =>
+                    {
+                        options.InterceptorLogLevel = LogLevel.Information;
+                    });
 
                 // All handlers will be registered as scoped
 

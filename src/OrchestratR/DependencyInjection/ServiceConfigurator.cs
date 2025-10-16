@@ -14,6 +14,13 @@ internal sealed class ServiceConfigurator : IServiceConfigurator
     public Func<Type, ServiceLifetime> HandlerTypeLifetimeSelector => _handlerTypeLifetimeSelector ?? (_ => ServiceLifetime.Transient);
     public Func<Type, HandlerKind, bool> HandlerTypeFilterPredicate => _handlerTypeFilterPredicate ?? ((_,_) => true);
 
+    public IServiceCollection Services { get; }
+
+    public ServiceConfigurator(IServiceCollection services)
+    {
+        Services = services;
+    }
+
     public IServiceConfigurator RegisterServicesFromAssembly(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly);

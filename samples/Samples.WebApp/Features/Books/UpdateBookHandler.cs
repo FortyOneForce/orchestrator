@@ -1,14 +1,15 @@
 ﻿using FortyOne.OrchestratR;
+using FortyOne.OrchestratR.Extensions;
 
 namespace Samples.WebApp.Features.Books
 {
-    public class UpdateBookHandler : IRequestHandler<UpdateBookRequest>
+    public class UpdateBookHandler : IRequestHandler<UpdateBookRequest, Result>
     {
-        public async Task HandleAsync(UpdateBookRequest request, CancellationToken cancellationToken)
+        public async Task<Result> HandleAsync(UpdateBookRequest request, CancellationToken cancellationToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
-
             // Do nothing, just a sample
+
+            return Result.Success();
         }
     }
 }
