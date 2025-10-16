@@ -1,4 +1,6 @@
-﻿namespace FortyOne.OrchestratR;
+﻿#pragma warning disable IDE0130
+namespace FortyOne.OrchestratR;
+#pragma warning restore IDE0130
 
 /// <summary>
 /// Represents a base request in the mediator pattern that doesn't return a value.

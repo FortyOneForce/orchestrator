@@ -9,6 +9,11 @@ namespace FortyOne.OrchestratR.DependencyInjection;
 public interface IServiceConfigurator
 {
     /// <summary>
+    /// Gets the service collection to which handlers and interceptors are registered.
+    /// </summary>
+    IServiceCollection Services { get; }
+
+    /// <summary>
     /// Registers all handlers found in the specified assembly.
     /// </summary>
     IServiceConfigurator RegisterServicesFromAssembly(Assembly assembly);

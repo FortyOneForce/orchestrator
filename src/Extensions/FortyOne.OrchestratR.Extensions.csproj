@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<PackageId>FortyOne.OrchestratR.Extensions</PackageId>
+		<AssemblyName>FortyOne.OrchestratR.Extensions</AssemblyName>
+		<RootNamespace>FortyOne.OrchestratR.Extensions</RootNamespace>
+		<Description>Advanced extension capabilities for the OrchestratR mediator library, enhancing its core functionality with batch processing, parallel execution strategies, and specialized pipeline behaviors. Provides utility methods for working with requests and notifications, including request aggregation, bulk operations, and enhanced execution controls. Compatible with modern .NET applications targeting .NET 8 and .NET 9 and seamlessly integrates with the core OrchestratR dependency injection system.</Description>
+	</PropertyGroup>
+
+	<ItemGroup Condition="'$(UsePackageReferences)' != 'true'">
+		<ProjectReference Include="..\Abstractions\FortyOne.OrchestratR.Abstractions.csproj" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(UsePackageReferences)' == 'true'">
+		<PackageReference Include="FortyOne.OrchestratR.Abstractions" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+		<PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+	</ItemGroup>
+</Project>

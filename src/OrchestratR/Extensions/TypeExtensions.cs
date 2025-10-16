@@ -28,7 +28,7 @@ internal static class TypeExtensions
         return notificationHandlerInterfaces.Length != 0;
     }
 
-    public static bool TryGetRequstHandlerInterfaces(this Type type, out Type[] requestHandlerInterfaces)
+    public static bool TryGetRequestHandlerInterfaces(this Type type, out Type[] requestHandlerInterfaces)
     {
         ArgumentNullException.ThrowIfNull(type);
 

@@ -1,6 +1,5 @@
-﻿using Samples.WebApp.Features.Books;
-using FortyOne.OrchestratR.DependencyInjection;
-using Samples.WebApp.Interceptors;
+﻿using FortyOne.OrchestratR.DependencyInjection;
+using Samples.WebApp.Features.Books;
 
 namespace Samples.WebApp;
 
@@ -9,6 +8,10 @@ internal static class Program
     static async Task Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services
+            .AddLogging()
+            .AddMemoryCache();
 
         builder.Services
             .AddOrchestrator(configure =>
@@ -20,8 +23,10 @@ internal static class Program
                 // Registers action execution interceptors
 
                 configure
-                    .AddRequestInterceptor(typeof(ExceptionHandlingInterceptor<,>))
-                    .AddRequestInterceptor(typeof(RequestLoggerInterceptor<,>));
+                    .AddDefaultRequestInterceptors(options =>
+                    {
+                        options.InterceptorLogLevel = LogLevel.Information;
+                    });
 
                 // All handlers will be registered as scoped
 
@@ -51,7 +56,29 @@ internal static class Program
             setup.SwaggerEndpoint("/swagger/v1/swagger.json", "My API v1");
             setup.RoutePrefix = string.Empty;
         });
-        
+
+        //using var scope = app.Services.CreateScope();
+        //var orchestrator = scope.ServiceProvider.GetRequiredService<IOrchestrator>();
+        //var requests = new GetBookRequest[]
+        //{
+        //    new GetBookRequest() { Id = 1 },
+        //    new GetBookRequest() { Id = 2 },
+        //    new GetBookRequest() { Id = 3 },
+        //};
+
+        //var a = await orchestrator
+        //    .ExecuteBatchAsync(requests, RequestProcessingOptions.Transactional, (response) => response.Any(x => x.Id == 2), default);
+
+        //foreach(var item in a)
+        //{
+            
+        //}
+
+        //if (a.IsFailed)
+        //{
+        //    var failed = a.FailedResponse;
+        //}
+
         await app.RunAsync();
     }
 }

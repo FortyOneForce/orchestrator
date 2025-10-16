@@ -1,5 +1,4 @@
 ﻿using FortyOne.OrchestratR.Extensions;
-using FortyOne.OrchestratR.Proxies;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FortyOne.OrchestratR.DependencyInjection;
@@ -19,7 +18,7 @@ public static class ServiceCollectionExtensions
 
         EnsureOrchestratorNotRegistered(services);
 
-        var configurator = new ServiceConfigurator();
+        var configurator = new ServiceConfigurator(services);
         configure(configurator);
 
         RegisterCoreServices(services);
@@ -42,9 +41,9 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
+        services.AddTransient<IRequestOrchestrator, Orchestrator>();
+        services.AddTransient<INotificationOrchestrator, Orchestrator>();
         services.AddTransient<IOrchestrator, Orchestrator>();
-        services.AddTransient<RequestExecutor>();
-        services.AddTransient<NotificationPublisher>();
         
     }
 
@@ -94,7 +93,7 @@ public static class ServiceCollectionExtensions
                     }
                 }
 
-                if (handlerType.TryGetRequstHandlerInterfaces(out var requestHandlerInterfaces))
+                if (handlerType.TryGetRequestHandlerInterfaces(out var requestHandlerInterfaces))
                 {
                     if (configurator.HandlerTypeFilterPredicate(handlerType, HandlerKind.RequestHandler))
                     {
@@ -106,17 +105,17 @@ public static class ServiceCollectionExtensions
                             if (interfaceGenericAurguments.Length == 1)
                             {
                                 var requestType = interfaceGenericAurguments[0];
-                                var proxyType = typeof(HandlerPropxy<>).MakeGenericType(requestType);
+                                var proxyType = typeof(RequestHandlerProxy<>).MakeGenericType(requestType);
 
-                                services.AddTransient(proxyType);
+                                services.AddSingleton(proxyType);
                             }
                             else if (interfaceGenericAurguments.Length == 2)
                             {
                                 var requestType = interfaceGenericAurguments[0];
                                 var responseType = interfaceGenericAurguments[1];
-                                var proxyType = typeof(HandlerWithResponseProxy<,>).MakeGenericType(requestType, responseType);
+                                var proxyType = typeof(RequestHandlerProxy<,>).MakeGenericType(requestType, responseType);
 
-                                services.AddTransient(proxyType);
+                                services.AddSingleton(proxyType);
                             }
                         }
                     }

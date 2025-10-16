@@ -13,7 +13,8 @@ namespace Benchmarks
                 typeof(RequestResponseBenchmark),
                 typeof(RequestResponseInterceptorBenchmark),
                 typeof(NotificationBenchmark),
-                typeof(NotificationHandlerBenchmark)
+                typeof(NotificationHandlerBenchmark),
+                typeof(ExtensionMethodBenchmark)
             };
 
             new BenchmarkSwitcher(types).Run(args: args);
