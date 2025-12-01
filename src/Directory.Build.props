@@ -1,7 +1,7 @@
 <Project>
 	<PropertyGroup>
-		<TargetFrameworks>net9.0;net8.0</TargetFrameworks>
-		<ExtendedTargetFrameworks>net9.0;net8.0</ExtendedTargetFrameworks>
+		<TargetFrameworks>net10.0;net9.0;net8.0</TargetFrameworks>
+		<ExtendedTargetFrameworks>net10.0;net9.0;net8.0</ExtendedTargetFrameworks>
 	</PropertyGroup>
 	
     <PropertyGroup>
